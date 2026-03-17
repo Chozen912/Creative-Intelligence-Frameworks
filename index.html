@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bot Edentities</title>
+  <style>
+    :root {
+      --royal-blue: #0f2b93;
+      --light-blue: #8cc9ff;
+      --silver: #c9d0d8;
+      --white: #ffffff;
+      --yellow: #f5c542;
+      --black: #111111;
+      --mvr: mediumvioletred;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #1b44bf, #0a1e68 50%, #050f3a 100%);
+      color: var(--white);
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: none;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    #startup {
+      background: var(--royal-blue);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: startupFadeIn 1.6s ease;
+      z-index: 50;
+    }
+
+    #startup .edent {
+      font-family: "Brush Script MT", "Lucida Handwriting", cursive;
+      color: var(--black);
+      font-size: clamp(3rem, 12vw, 6rem);
+      opacity: 0;
+      animation: revealTitle 1.4s ease forwards;
+      text-shadow: 0 2px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    #startup .bot {
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.55rem;
+      font-weight: 800;
+      font-family: "Orbitron", "Segoe UI", sans-serif;
+      color: var(--silver);
+      text-shadow:
+        2px 2px 0 var(--black),
+        -1px -1px 0 var(--black),
+        0 0 22px rgba(245, 197, 66, 0.5);
+      font-size: clamp(2rem, 8vw, 3.7rem);
+      opacity: 0;
+      animation: revealTitle 1.1s ease forwards;
+      animation-delay: 1s;
+    }
+
+    @keyframes startupFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes revealTitle {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    #home {
+      padding: 1rem;
+      flex-direction: column;
+      gap: 1rem;
+      background: linear-gradient(135deg, rgba(15, 43, 147, 0.95), rgba(14, 75, 164, 0.94));
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(0, 0, 0, 0.26);
+      border: 1px solid rgba(140, 201, 255, 0.4);
+      border-radius: 0.8rem;
+      padding: 0.7rem;
+    }
+
+    button, input, select, textarea {
+      border-radius: 0.45rem;
+      border: 1px solid rgba(201, 208, 216, 0.55);
+      background: rgba(255, 255, 255, 0.95);
+      color: #111;
+      font: inherit;
+      padding: 0.5rem 0.6rem;
+    }
+
+    button {
+      cursor: pointer;
+      font-weight: 600;
+      background: linear-gradient(180deg, #f9e088, var(--yellow));
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1rem;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 1rem;
+      padding: 0.9rem;
+      overflow: auto;
+    }
+
+    .panel h2 {
+      margin: 0 0 0.65rem;
+      color: var(--light-blue);
+    }
+
+    #hubWrap {
+      position: relative;
+      min-height: 380px;
+      overflow: auto;
+    }
+
+    #hub {
+      width: 100%;
+      height: 100%;
+      min-height: 430px;
+    }
+
+    .hub-center {
+      fill: rgba(201, 208, 216, 0.9);
+      stroke: var(--black);
+      stroke-width: 2;
+    }
+
+    .hub-link {
+      stroke: rgba(140, 201, 255, 0.9);
+      stroke-width: 2.5;
+    }
+
+    .hex {
+      stroke: #111;
+      stroke-width: 2;
+      filter: drop-shadow(0 0 8px rgba(245, 197, 66, 0.55));
+      cursor: pointer;
+    }
+
+    .hex-label {
+      pointer-events: none;
+      fill: #111;
+      font-size: 13px;
+      font-weight: 700;
+      text-anchor: middle;
+      dominant-baseline: middle;
+    }
+
+    .bot-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .bot-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      padding: 0.4rem;
+      border-radius: 0.55rem;
+      background: rgba(255, 255, 255, 0.13);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    #chat {
+      flex-direction: column;
+      padding: 1rem;
+      gap: 1rem;
+      background: linear-gradient(180deg, #0f2b93, #1d2a6f 60%, #130f37);
+    }
+
+    #chatLog {
+      flex: 1;
+      overflow: auto;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 0.8rem;
+      padding: 0.7rem;
+      min-height: 220px;
+    }
+
+    .msg { margin: 0 0 0.65rem; }
+    .msg.user { color: var(--yellow); }
+    .msg.bot { color: var(--light-blue); }
+
+    @media (max-width: 900px) {
+      .split { grid-template-columns: 1fr; }
+      body { overflow: auto; }
+      #home { overflow: auto; }
+    }
+  </style>
+</head>
+<body>
+  <section id="startup" class="screen active">
+    <div class="bot">BOT</div>
+    <div class="edent">Edentities</div>
+  </section>
+
+  <section id="home" class="screen">
+    <div class="toolbar">
+      <button id="exportBtn">Export Bots</button>
+      <label>
+        Import Bots
+        <input id="importInput" type="file" accept="application/json" />
+      </label>
+      <span style="margin-left:auto;color:var(--light-blue);font-weight:600;">Bot Edentities Hub</span>
+    </div>
+
+    <div class="split">
+      <aside class="panel">
+        <h2>Bot Control Menu</h2>
+        <form id="botForm">
+          <input name="name" placeholder="Bot name" required />
+          <input name="icon" placeholder="Emoji/icon (e.g. 🤖)" value="🤖" />
+          <input name="color" type="color" value="#f5c542" />
+          <select name="font">
+            <option value="Segoe UI">Segoe UI</option>
+            <option value="Orbitron">Orbitron</option>
+            <option value="Courier New">Courier New</option>
+            <option value="Georgia">Georgia</option>
+          </select>
+          <textarea name="prompt" rows="4" placeholder="System prompt (editable in chat)..." required></textarea>
+          <button type="submit">Add Bot</button>
+          <button type="button" id="generateIconBtn">AI Generate Icon + Color</button>
+        </form>
+        <h3>Current Nodes</h3>
+        <ul id="botList" class="bot-list"></ul>
+      </aside>
+
+      <main class="panel" id="hubWrap">
+        <svg id="hub" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet"></svg>
+      </main>
+    </div>
+  </section>
+
+  <section id="chat" class="screen">
+    <div class="toolbar">
+      <button id="backHome">← Home</button>
+      <strong id="chatTitle">Chat</strong>
+    </div>
+    <label>Bot System Prompt</label>
+    <textarea id="systemPrompt" rows="4"></textarea>
+    <div id="chatLog"></div>
+    <div style="display:flex; gap:0.5rem;">
+      <input id="chatInput" style="flex:1" placeholder="Type a message..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </section>
+
+  <script>
+    const startup = document.getElementById('startup');
+    const home = document.getElementById('home');
+    const chat = document.getElementById('chat');
+    const hub = document.getElementById('hub');
+    const botList = document.getElementById('botList');
+    const botForm = document.getElementById('botForm');
+    const generateIconBtn = document.getElementById('generateIconBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const importInput = document.getElementById('importInput');
+    const chatTitle = document.getElementById('chatTitle');
+    const systemPrompt = document.getElementById('systemPrompt');
+    const chatLog = document.getElementById('chatLog');
+    const chatInput = document.getElementById('chatInput');
+
+    let bots = [
+      { id: crypto.randomUUID(), name: 'Navigator', icon: '🛰️', color: '#f5c542', font: 'Orbitron', prompt: 'You are Navigator, a strategic planning assistant.' },
+      { id: crypto.randomUUID(), name: 'Muse', icon: '🎨', color: '#c71585', font: 'Georgia', prompt: 'You are Muse, a creative ideation companion.' },
+      { id: crypto.randomUUID(), name: 'SysLink', icon: '🔗', color: '#8cc9ff', font: 'Courier New', prompt: 'You are SysLink, focused on systems and architecture.' }
+    ];
+
+    let activeBot = null;
+
+    setTimeout(() => {
+      startup.classList.remove('active');
+      home.classList.add('active');
+      render();
+    }, 3600);
+
+    function render() {
+      renderHub();
+      renderList();
+    }
+
+    function renderHub() {
+      const cx = 450;
+      const cy = 250;
+      const radius = 150;
+      hub.innerHTML = '';
+
+      const center = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      center.setAttribute('cx', cx);
+      center.setAttribute('cy', cy);
+      center.setAttribute('r', 55);
+      center.setAttribute('class', 'hub-center');
+      hub.appendChild(center);
+
+      const centerLabel = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      centerLabel.setAttribute('x', cx);
+      centerLabel.setAttribute('y', cy);
+      centerLabel.setAttribute('class', 'hex-label');
+      centerLabel.textContent = 'BOT HUB';
+      hub.appendChild(centerLabel);
+
+      bots.forEach((bot, i) => {
+        const angle = (Math.PI * 2 * i) / Math.max(bots.length, 1) - Math.PI / 2;
+        const x = cx + Math.cos(angle) * radius * (bots.length > 6 ? 1.5 : 1);
+        const y = cy + Math.sin(angle) * radius * (bots.length > 6 ? 1.3 : 1);
+
+        const link = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        link.setAttribute('x1', cx);
+        link.setAttribute('y1', cy);
+        link.setAttribute('x2', x);
+        link.setAttribute('y2', y);
+        link.setAttribute('class', 'hub-link');
+        hub.appendChild(link);
+
+        const hex = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+        hex.setAttribute('points', hexPoints(x, y, 44));
+        hex.setAttribute('fill', bot.color || '#f5c542');
+        hex.setAttribute('class', 'hex');
+        hex.dataset.id = bot.id;
+        hex.addEventListener('click', () => openChat(bot.id));
+        hub.appendChild(hex);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', x);
+        label.setAttribute('y', y + 4);
+        label.setAttribute('class', 'hex-label');
+        label.setAttribute('style', `font-family:${bot.font || 'Segoe UI'};`);
+        label.textContent = `${bot.icon || '🤖'} ${bot.name.slice(0, 8)}`;
+        hub.appendChild(label);
+      });
+    }
+
+    function hexPoints(cx, cy, r) {
+      return Array.from({ length: 6 }, (_, i) => {
+        const a = (Math.PI / 3) * i + Math.PI / 6;
+        return `${cx + r * Math.cos(a)},${cy + r * Math.sin(a)}`;
+      }).join(' ');
+    }
+
+    function renderList() {
+      botList.innerHTML = '';
+      bots.forEach(bot => {
+        const li = document.createElement('li');
+        li.innerHTML = `<span><strong>${bot.icon || '🤖'} ${bot.name}</strong></span>`;
+
+        const actions = document.createElement('div');
+        const open = document.createElement('button');
+        open.textContent = 'Open';
+        open.onclick = () => openChat(bot.id);
+
+        const remove = document.createElement('button');
+        remove.textContent = 'Remove';
+        remove.onclick = () => {
+          bots = bots.filter(b => b.id !== bot.id);
+          render();
+        };
+
+        actions.append(open, remove);
+        li.appendChild(actions);
+        botList.appendChild(li);
+      });
+    }
+
+    botForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const data = new FormData(botForm);
+      bots.push({
+        id: crypto.randomUUID(),
+        name: data.get('name').toString().trim(),
+        icon: data.get('icon').toString(),
+        color: data.get('color').toString(),
+        font: data.get('font').toString(),
+        prompt: data.get('prompt').toString()
+      });
+      botForm.reset();
+      botForm.icon.value = '🤖';
+      botForm.color.value = '#f5c542';
+      render();
+    });
+
+    const iconPool = ['🧠','🛡️','🕸️','🎯','🧬','⚙️','📡','🌐','🧩','🔮'];
+    const colorPool = ['#8cc9ff','#f5c542','#c71585','#c9d0d8','#ffd166','#7ad7f0'];
+    generateIconBtn.addEventListener('click', () => {
+      botForm.icon.value = iconPool[Math.floor(Math.random() * iconPool.length)];
+      botForm.color.value = colorPool[Math.floor(Math.random() * colorPool.length)];
+      const fonts = ['Segoe UI', 'Orbitron', 'Courier New', 'Georgia'];
+      botForm.font.value = fonts[Math.floor(Math.random() * fonts.length)];
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(bots, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'bot-edentities.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    importInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      try {
+        const data = JSON.parse(await file.text());
+        if (Array.isArray(data)) {
+          bots = data.map(b => ({ ...b, id: b.id || crypto.randomUUID() }));
+          render();
+        }
+      } catch {
+        alert('Import failed. Please upload a valid JSON export.');
+      }
+    });
+
+    function openChat(id) {
+      activeBot = bots.find(b => b.id === id);
+      if (!activeBot) return;
+      home.classList.remove('active');
+      chat.classList.add('active');
+      chatTitle.textContent = `${activeBot.icon || '🤖'} ${activeBot.name}`;
+      systemPrompt.value = activeBot.prompt || '';
+      chatLog.innerHTML = '';
+      addMessage('bot', `System prompt loaded for ${activeBot.name}. You can edit it above.`);
+    }
+
+    document.getElementById('backHome').addEventListener('click', () => {
+      chat.classList.remove('active');
+      home.classList.add('active');
+      if (activeBot) activeBot.prompt = systemPrompt.value;
+      render();
+    });
+
+    document.getElementById('sendBtn').addEventListener('click', sendMessage);
+    chatInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    function sendMessage() {
+      const text = chatInput.value.trim();
+      if (!text || !activeBot) return;
+      addMessage('user', text);
+      addMessage('bot', `${activeBot.name}: I received "${text}". (Demo response)`);
+      chatInput.value = '';
+    }
+
+    function addMessage(role, text) {
+      const p = document.createElement('p');
+      p.className = `msg ${role}`;
+      p.textContent = text;
+      chatLog.appendChild(p);
+      chatLog.scrollTop = chatLog.scrollHeight;
+    }
+  </script>
+</body>
+</html>
